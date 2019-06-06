@@ -1,4 +1,4 @@
-# options-pricing
+# Options Pricing
 This project applies an object-orientation aproach to compute the prices of American and European call and put options via Monte Carlo, the analytical Black-Scholes formula and the Binomial tree method.
 
 Currently:
