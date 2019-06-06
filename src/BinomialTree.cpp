@@ -7,7 +7,7 @@ std::vector <int> Nodes(int n)
 	std::vector <int> nodes;
 	nodes.push_back(n * 4 + 2);
 	nodes.push_back(n + 1);
-	
+
 	return nodes;
 }
 
@@ -22,15 +22,15 @@ std::vector <double> UpDownFactor(double volatility, double maturity, int nodes)
 	return result;
 }
 
-std::vector <double> ProbabilityUpDown(std::vector <double> UpAndDown, double riskFree, double maturity, int nodes)
+std::vector <double> ProbabilityUpDown(std::vector <double> UpAndDown, 
+	double riskFree, double maturity, int nodes)
 {
 	double p_up, p_down;
 	double dt = maturity / (double) nodes;
 	
 	std::vector <double> result;
 	
-	p_up = exp(riskFree * dt) - UpAndDown[1];
-	p_up /= (UpAndDown[0] - UpAndDown[1]);
+	p_up = (exp(riskFree * dt) - UpAndDown[1]) / (UpAndDown[0] - UpAndDown[1]);
 	p_down = 1 - p_up;
 	
 	result.push_back(p_up);
@@ -39,17 +39,19 @@ std::vector <double> ProbabilityUpDown(std::vector <double> UpAndDown, double ri
 	return result;
 }
 
-double OptionPremium(double S, double K, int opType)
+double OptionPremium(double S, double K, int optionType)
 {
 	double result = 0;
-	if(opType == 0){
+	if(optionType == 0) {
 		result = S - K;
-	} else {
+	}
+	else {
 		result = K - S;
 	}
-	if(result < 0){
+	if(result < 0) {
 		return 0;
-	} else {
+	}
+	else {
 		return result;
 	}
 }
@@ -62,11 +64,12 @@ double Discount(double A, double B, double Up, double Down)
 
 void PrintTree(double ** Matrix, int m, int n)
 {
-	for(int i = 0; i < m; ++i){
-		for(int j = 0; j < n; ++j){
-			if(Matrix[i][j] == 0){
+	for(int i = 0; i < m; ++i) {
+		for(int j = 0; j < n; ++j) {
+			if(Matrix[i][j] == 0) {
 				std::cout << "" << "\t";
-			} else {
+			}
+			else {
 				std::cout << Matrix[i][j] << "\t";
 			}
 		}
@@ -78,10 +81,9 @@ void PrintTree(double ** Matrix, int m, int n)
 double ** BuildDoubleArray(int m, int n)
 {
 	double ** x = new double*[m];
-	for(int i = 0; i < m; ++i){
+	for(int i = 0; i < m; ++i) {
 		x[i] = new double[n];
-		for(int j = 0; j < n; ++j)
-		{
+		for(int j = 0; j < n; ++j) {
 			x[i][j] = 0;
 		}
 	}
@@ -95,17 +97,16 @@ double ** ForwardTree(double ** data, double S, double pUp, double pDown, int x,
 	int start = floor(x / 2) - 1;
 	int loop = 0;
 	
-	if((y - 1) % 2 == 0){
+	if((y - 1) % 2 == 0) {
 		loop = floor(y / 2) + 1;
-	} else {
+	}
+	else {
 		loop = floor(y / 2);
 	}
 
-	for(int j = 0; j < loop; ++j)
-	{
+	for(int j = 0; j < loop; ++j) {
 		data[start][2*j] = S;
-		for(int i = 1; i < y - (2*j); ++i)
-		{
+		for(int i = 1; i < y - (2*j); ++i) {
 			data[start - (2*i)][i + (2*j)] = data[start - (2 *(i-1))][(i - 1) + (2*j)] * pUp;
 			data[start + (2*i)][i + (2*j)] = data[start + (2 *(i-1))][(i - 1) + (2*j)] * pDown;		
 		}
@@ -116,10 +117,10 @@ double ** ForwardTree(double ** data, double S, double pUp, double pDown, int x,
 
 double ** CalculatePremium(double ** data, double K, int opType, int y)
 {
-	for(int i = 0; i < y; ++i)
-	{
-		data[4 * i + 1][y - 1] = OptionPremium(data[4 * i][y - 1], K, opType);	
+	for(int i = 0; i < y; ++i) {
+		data[4 * i + 1][y - 1] = OptionPremium(data[4 * i][y - 1], K, opType);
 	}
+
 	return data;
 }
 
@@ -127,17 +128,16 @@ double ** BackwardTree(double ** data, double K, double pUp, double pDown, int o
 {
 	double up, down, discount, premium;
 	
-	for(int j = 0; j < y; ++j)
-	{
-		for(int i = 0; i < y - (1 + j); ++i)
-		{
+	for(int j = 0; j < y; ++j) {
+		for(int i = 0; i < y - (1 + j); ++i) {
 			up = data[(2*j) + 4 * i + 1][y - (1 + j)];
 			down = data[(2*j) + 4 * (i + 1) + 1][y - (1 + j)];
 			discount = Discount(up, down, pUp, pDown);
 			premium = OptionPremium(data[(2*(j+1)) + 4 * i][y - (2 + j)], K, opType);
-			if(discount > premium){
+			if(discount > premium) {
 				data[(2*(j+1)) + 4 * i + 1][y - (2 + j)] = discount;
-			} else {
+			}
+			else {
 				data[(2*(j+1)) + 4 * i + 1][y - (2 + j)] = premium;
 			}
 		}
@@ -164,8 +164,7 @@ int main()
 	std::cout << "Default (0 = Yes 1 = No): ";
 	std::cin >> default_choice;
 	
-	if(default_choice == 0)
-	{
+	if(default_choice == 0) {
 		stock_price = 100;
 		strike_price = 95;
 		risk_free = 4.66;
@@ -175,8 +174,7 @@ int main()
 		nodes = 7;
 		show_tree = 0;
 	} 
-	else 
-	{
+	else {
 		std::cout << "Enter your stock price: ";
 		std::cin >> stock_price;
 		std::cout << "Enter your strike price: ";
@@ -218,7 +216,7 @@ int main()
 	
 	double option_price = OptionPrice(data, x);
 	
-	if(show_tree == 0){
+	if(show_tree == 0) {
 		PrintTree(data, x, y);
 	}
 	
