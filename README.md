@@ -4,4 +4,4 @@ This project applies an object-orientation aproach to compute the prices of Amer
 ### Option Pricing using Binomial Tree Model
 Generates a binomial option pricing tree based on the parameters one inputs in order to achieve the price of the option premium. 
 
-(MORE METHODS WILL BE ADDED SOON)
+(MORE METHODS TO BE ADDED SOON)
