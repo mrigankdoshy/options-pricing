@@ -2,39 +2,41 @@
 #include <math.h>
 #include <vector>
 
-std::vector <int> Nodes(int n)
+using namespace std;
+
+vector <int> Nodes(int n)
 {
-	std::vector <int> nodes;
+	vector <int> nodes;
+
 	nodes.push_back(n * 4 + 2);
 	nodes.push_back(n + 1);
 
 	return nodes;
 }
 
-std::vector <double> UpDownFactor(double volatility, double maturity, int nodes)
+vector <double> UpDownFactor(double volatility, double maturity, int nodes)
 {
 	double dt = maturity / (double) nodes;
-	
-	std::vector <double> result;
+	vector <double> result;
+
 	result.push_back(exp(volatility * sqrt(dt)));
 	result.push_back(exp(-volatility * sqrt(dt)));
 	
 	return result;
 }
 
-std::vector <double> ProbabilityUpDown(std::vector <double> UpAndDown, 
-	double riskFree, double maturity, int nodes)
+vector <double> ProbabilityUpDown(vector <double> UpAndDown, 
+	double riskFreeRate, double maturity, int nodes)
 {
-	double p_up, p_down;
+	double probabilityUp, probabilityDown;
 	double dt = maturity / (double) nodes;
 	
-	std::vector <double> result;
+	vector <double> result;
 	
-	p_up = (exp(riskFree * dt) - UpAndDown[1]) / (UpAndDown[0] - UpAndDown[1]);
-	p_down = 1 - p_up;
-	
-	result.push_back(p_up);
-	result.push_back(p_down);
+	probabilityUp = (exp(riskFreeRate * dt) - UpAndDown[1]) / (UpAndDown[0] - UpAndDown[1]);
+	probabilityDown = 1 - probabilityUp;
+	result.push_back(probabilityUp);
+	result.push_back(probabilityDown);
 	
 	return result;
 }
@@ -67,13 +69,13 @@ void PrintTree(double ** Matrix, int m, int n)
 	for(int i = 0; i < m; ++i) {
 		for(int j = 0; j < n; ++j) {
 			if(Matrix[i][j] == 0) {
-				std::cout << "" << "\t";
+				cout << "" << "\t";
 			}
 			else {
-				std::cout << Matrix[i][j] << "\t";
+				cout << Matrix[i][j] << "\t";
 			}
 		}
-		std::cout << std::endl;
+		cout << endl;
 	}
 }
 
@@ -91,7 +93,8 @@ double ** BuildDoubleArray(int m, int n)
 }
 
 
-double ** ForwardTree(double ** data, double S, double pUp, double pDown, int x, int y)
+double ** ForwardTree(double ** data, double S, double pUp, double pDown, int x, 
+	int y)
 {
 	
 	int start = floor(x / 2) - 1;
@@ -115,16 +118,18 @@ double ** ForwardTree(double ** data, double S, double pUp, double pDown, int x,
 	return data;
 }
 
-double ** CalculatePremium(double ** data, double K, int opType, int y)
+double ** CalculatePremium(double ** data, double K, int optionType, int y)
 {
 	for(int i = 0; i < y; ++i) {
-		data[4 * i + 1][y - 1] = OptionPremium(data[4 * i][y - 1], K, opType);
+		data[4 * i + 1][y - 1] = OptionPremium(data[4 * i][y - 1], K, 
+			optionType);
 	}
 
 	return data;
 }
 
-double ** BackwardTree(double ** data, double K, double pUp, double pDown, int opType, int y)
+double ** BackwardTree(double ** data, double K, double pUp, double pDown, 
+	int optionType, int y)
 {
 	double up, down, discount, premium;
 	
@@ -133,7 +138,8 @@ double ** BackwardTree(double ** data, double K, double pUp, double pDown, int o
 			up = data[(2*j) + 4 * i + 1][y - (1 + j)];
 			down = data[(2*j) + 4 * (i + 1) + 1][y - (1 + j)];
 			discount = Discount(up, down, pUp, pDown);
-			premium = OptionPremium(data[(2*(j+1)) + 4 * i][y - (2 + j)], K, opType);
+			premium = OptionPremium(data[(2*(j+1)) + 4 * i][y - (2 + j)], K, 
+				optionType);
 			if(discount > premium) {
 				data[(2*(j+1)) + 4 * i + 1][y - (2 + j)] = discount;
 			}
@@ -155,73 +161,84 @@ double OptionPrice(double ** data, int x)
 int main()
 {
 
-	double stock_price, strike_price, risk_free, volatility, maturity;
+	double stockPrice, strikePrice, riskFreeRate, volatility, maturity;
 	
-	int opType, nodes, default_choice, show_tree;
+	int optionType, nodes, defaultChoice, displayTree;
 	
-	std::cout << "\nBinomial Option Pricer\n------------------------------------\n";
+	cout << "\nBinomial Option Pricer\n------------------------------------\n";
 	
-	std::cout << "Default (0 = Yes 1 = No): ";
-	std::cin >> default_choice;
+	cout << "Use default values given below?"<<endl;
+	cout << "Stock Price = 100"<<endl 
+		<<"Strike Price = 95"<<endl
+		<<"Risk Free Rate = 5.87"<<endl
+		<<"Volatility = 53.66"<<endl
+		<<"Maturity = 5"<<endl
+		<<"Option Type = Call"<<endl
+		<<"Nodes = 5"<<endl
+		<<"Display Tree = Yes"<<endl 
+		<<"('1' for Yes, '0' for No): "<<endl;
+	cin >> defaultChoice;
 	
-	if(default_choice == 0) {
-		stock_price = 100;
-		strike_price = 95;
-		risk_free = 4.66;
-		volatility = 55.44;
-		maturity = 7;
-		opType = 1;
-		nodes = 7;
-		show_tree = 0;
+	if(defaultChoice == 1) {
+		stockPrice = 100;
+		strikePrice = 95;
+		riskFreeRate = 5.87;
+		volatility = 53.66;
+		maturity = 5;
+		optionType = 1;
+		nodes = 5;
+		displayTree = 1;
 	} 
 	else {
-		std::cout << "Enter your stock price: ";
-		std::cin >> stock_price;
-		std::cout << "Enter your strike price: ";
-		std::cin >> strike_price;
-		std::cout << "Enter your risk-free rate: ";
-		std::cin >> risk_free;
-		std::cout << "Enter your volatility: ";
-		std::cin >> volatility;
-		std::cout << "Enter your maturity in months: ";
-		std::cin >> maturity;	
-		std::cout << "Enter Option Type (0 = Call 1 = Put): ";
-		std::cin >> opType;
-		std::cout << "Enter the number of nodes: ";
-		std::cin >> nodes;
-		std::cout << "Show Tree (0 = Yes 1 = No): ";
-		std::cin >> show_tree;
+		cout << "Enter your stock price: ";
+		cin >> stockPrice;
+		cout << "Enter your strike price: ";
+		cin >> strikePrice;
+		cout << "Enter your risk-free rate: ";
+		cin >> riskFreeRate;
+		cout << "Enter your volatility: ";
+		cin >> volatility;
+		cout << "Enter your maturity in months: ";
+		cin >> maturity;	
+		cout << "Enter Option Type ('1' for Put, '0' for Call): ";
+		cin >> optionType;
+		cout << "Enter the number of nodes: ";
+		cin >> nodes;
+		cout << "Display Tree? ('1' for Yes, '0' for No): ";
+		cin >> displayTree;
 	}
 	
-	risk_free /= 100;
+	riskFreeRate /= 100;
 	volatility /= 100;
 	maturity /= 12;
 
-	std::vector <int> xy = Nodes(nodes);
-	std::vector <double> updown = UpDownFactor(volatility, maturity, nodes);
-	std::vector <double> probUD = ProbabilityUpDown(updown, risk_free, maturity, nodes);
+	vector <int> xy = Nodes(nodes);
+	vector <double> upDownFactor = UpDownFactor(volatility, maturity, nodes);
+	vector <double> probabilityUpDown = ProbabilityUpDown(upDownFactor, 
+		riskFreeRate, maturity, nodes);
 	
 	int x = xy[0];
 	int y = xy[1];
-	double up = updown[0];
-	double down = updown[1];
-	double p_up = probUD[0];
-	double p_down = probUD[1];
+	double up = upDownFactor[0];
+	double down = upDownFactor[1];
+	double probabilityUp = probabilityUpDown[0];
+	double probabilityDown = probabilityUpDown[1];
 	
 	double ** data = BuildDoubleArray(x, y);
 	
-	data = ForwardTree(data, stock_price, up, down, x, y);
-	data = CalculatePremium(data, strike_price, opType, y);
-	data = BackwardTree(data, strike_price, p_up, p_down, opType, y);
+	data = ForwardTree(data, stockPrice, up, down, x, y);
+	data = CalculatePremium(data, strikePrice, optionType, y);
+	data = BackwardTree(data, strikePrice, probabilityUp, probabilityDown, 
+		optionType, y);
 	
-	double option_price = OptionPrice(data, x);
+	double optionPrice = OptionPrice(data, x);
 	
-	if(show_tree == 0) {
+	if(displayTree == 1) {
 		PrintTree(data, x, y);
 	}
 	
-	std::cout << std::endl;
-	std::cout << "Option Price: " << option_price << std::endl;
+	cout << endl;
+	cout << "Option Price: " << optionPrice << endl;
 	
 	return 0;
 }
