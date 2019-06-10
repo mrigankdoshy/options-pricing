@@ -1,68 +1,27 @@
+/* 
+Assumptions in a binomial option pricing model: 
+	1. Only two possible prices, one up and one down
+	2. The underlying asset pays no dividends
+	3. Interest rate is constant
+	4. No taxes and transaction costs.
+
+	Option value = [(probability of rise * up value) + (probability of drop * down value)] / (1+r) 
+
+Valuation is performed iteratively, starting at each of the final nodes 
+(those that may be reached at the time of expiration), and then working 
+backwards through the tree towards the first node (valuation date). The value 
+computed at each stage is the value of the option at that point in time.
+
+Option valuation using this method is, as described, a three-step process:
+	1. Price tree generation,
+	2. Calculation of option value at each final node,
+	3. Sequential calculation of the option value at each preceding node.
+*/
 #include <iostream>
 #include <math.h>
 #include <vector>
 
 using namespace std;
-
-vector <int> Nodes(int n)
-{
-	vector <int> nodes;
-
-	nodes.push_back(n * 4 + 2);
-	nodes.push_back(n + 1);
-
-	return nodes;
-}
-
-vector <double> UpDownFactor(double volatility, double maturity, int nodes)
-{
-	double dt = maturity / (double) nodes;
-	vector <double> result;
-
-	result.push_back(exp(volatility * sqrt(dt)));
-	result.push_back(exp(-volatility * sqrt(dt)));
-	
-	return result;
-}
-
-vector <double> ProbabilityUpDown(vector <double> UpAndDown, 
-	double riskFreeRate, double maturity, int nodes)
-{
-	double probabilityUp, probabilityDown;
-	double dt = maturity / (double) nodes;
-	
-	vector <double> result;
-	
-	probabilityUp = (exp(riskFreeRate * dt) - UpAndDown[1]) / (UpAndDown[0] - UpAndDown[1]);
-	probabilityDown = 1 - probabilityUp;
-	result.push_back(probabilityUp);
-	result.push_back(probabilityDown);
-	
-	return result;
-}
-
-double OptionPremium(double S, double K, int optionType)
-{
-	double result = 0;
-	if(optionType == 0) {
-		result = S - K;
-	}
-	else {
-		result = K - S;
-	}
-	if(result < 0) {
-		return 0;
-	}
-	else {
-		return result;
-	}
-}
-
-double Discount(double A, double B, double Up, double Down)
-{
-	return Up * A + Down * B;
-}
-
 
 void PrintTree(double ** Matrix, int m, int n)
 {
@@ -157,6 +116,85 @@ double OptionPrice(double ** data, int x)
 	int start = floor(x / 2);
 	return data[start][0];
 }
+
+vector <int> Nodes(int n)
+{
+	vector <int> nodes;
+
+	nodes.push_back(n * 4 + 2);
+	nodes.push_back(n + 1);
+
+	return nodes;
+}
+/*
+The up and down factors are calculated using the underlying volatility (sigma) 
+and the time duration of a step (t), measured in years. From the condition that 
+the variance of the log of the price is sigma^2*t, we have:
+	1. u = e^{sigma*sqrt(t)}
+	2. d=e^{-sigma*sqrt(t)}
+
+*/
+vector <double> UpDownFactor(double volatility, double maturity, int nodes)
+{
+	/* Calculate t in years and compute u and d using the formulas above */
+	double dt = maturity / (double) nodes;
+	vector <double> result;
+
+	result.push_back(exp(volatility * sqrt(dt)));
+	result.push_back(exp(-volatility * sqrt(dt)));
+	
+	return result;
+}
+
+/*
+At each final node of the tree i.e. at expiration of the option, the option 
+value is simply its intrinsic, or exercise, value.
+	1. Max [ (S − K), 0 ], for a call option
+	2. Max [ (K − S), 0 ], for a put option:
+Where K is the strike price and S is the spot price of the underlying asset at 
+the nth period.
+*/
+double OptionPremium(double S, double K, int optionType)
+{
+	double result = 0;
+
+	/* For Call Option*/
+	if(optionType == 0) {
+		result = S - K;
+	}
+	/* For Put Option */
+	else if (optionType == 1) {
+		result = K - S;
+	}
+	if(result < 0) {
+		return 0;
+	}
+	else {
+		return result;
+	}
+}
+
+vector <double> ProbabilityUpDown(vector <double> UpAndDown, 
+	double riskFreeRate, double maturity, int nodes)
+{
+	double probabilityUp, probabilityDown;
+	double dt = maturity / (double) nodes;
+	
+	vector <double> result;
+	
+	probabilityUp = (exp(riskFreeRate * dt) - UpAndDown[1]) / (UpAndDown[0] - UpAndDown[1]);
+	probabilityDown = 1 - probabilityUp;
+	result.push_back(probabilityUp);
+	result.push_back(probabilityDown);
+	
+	return result;
+}
+
+double Discount(double A, double B, double Up, double Down)
+{
+	return Up * A + Down * B;
+}
+
 
 int main()
 {
