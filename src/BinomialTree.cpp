@@ -32,6 +32,7 @@ vector <int> Nodes(int n)
 
 	return nodes;
 }
+
 /*
 STEP 1:
 The up and down factors are calculated using the underlying volatility (sigma) 
@@ -62,7 +63,6 @@ value is simply its intrinsic, or exercise, value.
 Where K is the strike price and S is the spot price of the underlying asset at 
 the nth period.
 */
-
 double OptionPremium(double S, double K, int optionType)
 {
 	double result = 0;
@@ -82,6 +82,7 @@ double OptionPremium(double S, double K, int optionType)
 		return result;
 	}
 }
+
 /*
 STEP 3:
 Once the above step is complete, the option value is then found for each node, 
@@ -90,26 +91,20 @@ the tree (the valuation date) where the calculated result is the value of the
 option. In overview: the "binomial value" is found at each node, using the risk 
 neutrality assumption. If exercise is permitted at the node, then the model 
 takes the greater of binomial and exercise value at the node.
-
-	1. Under the risk neutrality assumption, today's fair price of a derivative 
-	is equal to the expected value of its future payoff discounted by the risk 
-	free rate. Therefore, expected value is calculated using the option values 
-	from the later two nodes (Option up and Option down) weighted by their 
-	respective probabilities—"probability" p of an up move in the underlying, 
-	and "probability" (1−p) of a down move. The expected value is then 
-	discounted at r, the risk free rate corresponding to the life of the option.
-
-	2. 
-
 */
 vector <double> ProbabilityUpDown(vector <double> UpAndDown, 
 	double riskFreeRate, double maturity, int nodes)
 {
 	double probabilityUp, probabilityDown;
-	double dt = maturity / (double) nodes;
+	double dt = maturity / (double) nodes; //dt = t/n
 	
 	vector <double> result;
-	
+	/*
+		 	 r(dt)
+	    	e      - d
+	  pUp = -----------
+		   	  u - d
+	*/
 	probabilityUp = (exp(riskFreeRate * dt) - UpAndDown[1]) / (UpAndDown[0] - UpAndDown[1]);
 	probabilityDown = 1 - probabilityUp;
 	result.push_back(probabilityUp);
@@ -138,7 +133,6 @@ void PrintTree(double ** Matrix, int m, int n)
 	}
 }
 
-
 double ** BuildDoubleArray(int m, int n)
 {
 	double ** x = new double*[m];
@@ -150,7 +144,6 @@ double ** BuildDoubleArray(int m, int n)
 	}
 	return x;
 }
-
 
 double ** ForwardTree(double ** data, double S, double pUp, double pDown, int x, 
 	int y)
