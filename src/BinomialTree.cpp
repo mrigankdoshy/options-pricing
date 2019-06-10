@@ -23,6 +23,106 @@ Option valuation using this method is, as described, a three-step process:
 
 using namespace std;
 
+vector <int> Nodes(int n)
+{
+	vector <int> nodes;
+
+	nodes.push_back(n * 4 + 2);
+	nodes.push_back(n + 1);
+
+	return nodes;
+}
+/*
+STEP 1:
+The up and down factors are calculated using the underlying volatility (sigma) 
+and the time duration of a step (t), measured in years. From the condition that 
+the variance of the log of the price is sigma^2*t, we have:
+	1. u = e^{sigma*sqrt(t)}
+	2. d=e^{-sigma*sqrt(t)}
+
+*/
+vector <double> UpDownFactor(double volatility, double maturity, int nodes)
+{
+	/* Calculate t in years and compute u and d using the formulas above */
+	double dt = maturity / (double) nodes;
+	vector <double> result;
+
+	result.push_back(exp(volatility * sqrt(dt)));
+	result.push_back(exp(-volatility * sqrt(dt)));
+	
+	return result;
+}
+
+/*
+STEP 2: 
+At each final node of the tree i.e. at expiration of the option, the option 
+value is simply its intrinsic, or exercise, value.
+	1. Max [ (S − K), 0 ], for a call option
+	2. Max [ (K − S), 0 ], for a put option:
+Where K is the strike price and S is the spot price of the underlying asset at 
+the nth period.
+*/
+
+double OptionPremium(double S, double K, int optionType)
+{
+	double result = 0;
+
+	/* For Call Option*/
+	if(optionType == 0) {
+		result = S - K;
+	}
+	/* For Put Option */
+	else {
+		result = K - S;
+	}
+	if(result < 0) {
+		return 0;
+	}
+	else {
+		return result;
+	}
+}
+/*
+STEP 3:
+Once the above step is complete, the option value is then found for each node, 
+starting at the penultimate time step, and working back to the first node of 
+the tree (the valuation date) where the calculated result is the value of the 
+option. In overview: the "binomial value" is found at each node, using the risk 
+neutrality assumption. If exercise is permitted at the node, then the model 
+takes the greater of binomial and exercise value at the node.
+
+	1. Under the risk neutrality assumption, today's fair price of a derivative 
+	is equal to the expected value of its future payoff discounted by the risk 
+	free rate. Therefore, expected value is calculated using the option values 
+	from the later two nodes (Option up and Option down) weighted by their 
+	respective probabilities—"probability" p of an up move in the underlying, 
+	and "probability" (1−p) of a down move. The expected value is then 
+	discounted at r, the risk free rate corresponding to the life of the option.
+
+	2. 
+
+*/
+vector <double> ProbabilityUpDown(vector <double> UpAndDown, 
+	double riskFreeRate, double maturity, int nodes)
+{
+	double probabilityUp, probabilityDown;
+	double dt = maturity / (double) nodes;
+	
+	vector <double> result;
+	
+	probabilityUp = (exp(riskFreeRate * dt) - UpAndDown[1]) / (UpAndDown[0] - UpAndDown[1]);
+	probabilityDown = 1 - probabilityUp;
+	result.push_back(probabilityUp);
+	result.push_back(probabilityDown);
+	
+	return result;
+}
+
+double Discount(double A, double B, double Up, double Down)
+{
+	return Up * A + Down * B;
+}
+
 void PrintTree(double ** Matrix, int m, int n)
 {
 	for(int i = 0; i < m; ++i) {
@@ -116,85 +216,6 @@ double OptionPrice(double ** data, int x)
 	int start = floor(x / 2);
 	return data[start][0];
 }
-
-vector <int> Nodes(int n)
-{
-	vector <int> nodes;
-
-	nodes.push_back(n * 4 + 2);
-	nodes.push_back(n + 1);
-
-	return nodes;
-}
-/*
-The up and down factors are calculated using the underlying volatility (sigma) 
-and the time duration of a step (t), measured in years. From the condition that 
-the variance of the log of the price is sigma^2*t, we have:
-	1. u = e^{sigma*sqrt(t)}
-	2. d=e^{-sigma*sqrt(t)}
-
-*/
-vector <double> UpDownFactor(double volatility, double maturity, int nodes)
-{
-	/* Calculate t in years and compute u and d using the formulas above */
-	double dt = maturity / (double) nodes;
-	vector <double> result;
-
-	result.push_back(exp(volatility * sqrt(dt)));
-	result.push_back(exp(-volatility * sqrt(dt)));
-	
-	return result;
-}
-
-/*
-At each final node of the tree i.e. at expiration of the option, the option 
-value is simply its intrinsic, or exercise, value.
-	1. Max [ (S − K), 0 ], for a call option
-	2. Max [ (K − S), 0 ], for a put option:
-Where K is the strike price and S is the spot price of the underlying asset at 
-the nth period.
-*/
-double OptionPremium(double S, double K, int optionType)
-{
-	double result = 0;
-
-	/* For Call Option*/
-	if(optionType == 0) {
-		result = S - K;
-	}
-	/* For Put Option */
-	else if (optionType == 1) {
-		result = K - S;
-	}
-	if(result < 0) {
-		return 0;
-	}
-	else {
-		return result;
-	}
-}
-
-vector <double> ProbabilityUpDown(vector <double> UpAndDown, 
-	double riskFreeRate, double maturity, int nodes)
-{
-	double probabilityUp, probabilityDown;
-	double dt = maturity / (double) nodes;
-	
-	vector <double> result;
-	
-	probabilityUp = (exp(riskFreeRate * dt) - UpAndDown[1]) / (UpAndDown[0] - UpAndDown[1]);
-	probabilityDown = 1 - probabilityUp;
-	result.push_back(probabilityUp);
-	result.push_back(probabilityDown);
-	
-	return result;
-}
-
-double Discount(double A, double B, double Up, double Down)
-{
-	return Up * A + Down * B;
-}
-
 
 int main()
 {
