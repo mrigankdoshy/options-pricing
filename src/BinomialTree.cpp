@@ -145,10 +145,10 @@ double ** BuildDoubleArray(int m, int n)
 	return x;
 }
 
+/* Values with zeros / nothing below it*/
 double ** ForwardTree(double ** data, double S, double pUp, double pDown, int x, 
 	int y)
 {
-	
 	int start = floor(x / 2) - 1;
 	int loop = 0;
 	
@@ -161,20 +161,21 @@ double ** ForwardTree(double ** data, double S, double pUp, double pDown, int x,
 
 	for(int j = 0; j < loop; ++j) {
 		data[start][2*j] = S;
-		for(int i = 1; i < y - (2*j); ++i) {
+		for(int i = 1; i < y - (2*j); ++i) { 
 			data[start - (2*i)][i + (2*j)] = data[start - (2 *(i-1))][(i - 1) + (2*j)] * pUp;
-			data[start + (2*i)][i + (2*j)] = data[start + (2 *(i-1))][(i - 1) + (2*j)] * pDown;		
+			data[start + (2*i)][i + (2*j)] = data[start + (2 *(i-1))][(i - 1) + (2*j)] * pDown;	
 		}
 	}
 	
 	return data;
 }
 
+/* Premium in the last column */
 double ** CalculatePremium(double ** data, double K, int optionType, int y)
 {
 	for(int i = 0; i < y; ++i) {
 		data[4 * i + 1][y - 1] = OptionPremium(data[4 * i][y - 1], K, 
-			optionType);
+			optionType); 
 	}
 
 	return data;
@@ -187,20 +188,12 @@ double ** BackwardTree(double ** data, double K, double pUp, double pDown,
 	
 	for(int j = 0; j < y; ++j) {
 		for(int i = 0; i < y - (1 + j); ++i) {
-			up = data[(2*j) + 4 * i + 1][y - (1 + j)];
+			up = data[(2*j) + 4 * i + 1][y - (1 + j)]; 
 			down = data[(2*j) + 4 * (i + 1) + 1][y - (1 + j)];
 			discount = Discount(up, down, pUp, pDown);
-			premium = OptionPremium(data[(2*(j+1)) + 4 * i][y - (2 + j)], K, 
-				optionType);
-			if(discount > premium) {
-				data[(2*(j+1)) + 4 * i + 1][y - (2 + j)] = discount;
-			}
-			else {
-				data[(2*(j+1)) + 4 * i + 1][y - (2 + j)] = premium;
-			}
+			data[(2*(j+1)) + 4 * i + 1][y - (2 + j)] = discount;
 		}
 	}
-	
 	return data;
 }
 
@@ -234,8 +227,8 @@ int main()
 	if(defaultChoice == 1) {
 		stockPrice = 100;
 		strikePrice = 95;
-		riskFreeRate = 5.87;
-		volatility = 53.66;
+		riskFreeRate = 5;
+		volatility = 50;
 		maturity = 5;
 		optionType = 1;
 		nodes = 5;
@@ -271,6 +264,7 @@ int main()
 	
 	int x = xy[0];
 	int y = xy[1];
+
 	double up = upDownFactor[0];
 	double down = upDownFactor[1];
 	double probabilityUp = probabilityUpDown[0];
