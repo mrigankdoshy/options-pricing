@@ -5,7 +5,7 @@ This project applies an object oriented approach to compute the prices of Americ
 Generates a binomial option pricing tree based on the parameters one inputs in order to achieve the price of the option premium. Applicable to European as well as American options. 
 
 ### *Monte Carlo Simulation*
-Contains the following:
+Contains the following to get a hang of the Monte Carlo Method:
   1. A serial approach to the estimation of Pi using the Monte Carlo Method (C++)
   2. A Multithreaded estimation of Pi based on the Monte Carlo Method (C++)
   3. Using matplotlib, plots the estimated value of Pi using Monte Carlo Method (Python)
