@@ -43,7 +43,7 @@ int main()
 
 		// For visual understanding (Optional) 
 		cout << "x: "<<randX << "\ty: " << randY << "\t\tInside Circle: " << circlePoints 
-			<< "\t\tInside Sqaure: " << squarePoints << "\t\tEstimated PI: " << pi << endl << endl; 
+			<< "\t\tInside Square: " << squarePoints << "\t\tEstimated PI: " << pi << endl << endl; 
 
 		// Pausing estimation for first 10 values (Optional) 
 		if (i < 20) 
