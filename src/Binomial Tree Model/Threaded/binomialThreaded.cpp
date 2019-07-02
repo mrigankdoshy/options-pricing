@@ -8,19 +8,34 @@
 
 std::mutex mtx;
 
-auto cc = [](int n, int i){return n - i;};
-auto min = [](double a, double b){if(a > b){return a;} else {return b;}};
+auto cc = [](int n, int i) {
+	return n - i;
+};
+
+auto min = [](double a, double b)
+{
+	if(a > b) 
+	{
+		return a; 
+	}
+	else 
+	{
+		return b;
+	}
+};
 
 double nonce()
 {
 	time_t time1;
 	time(&time1);
+
 	return time1;
 }
 
 double Prob(double r, double t, double n, double P, double D)
 {
-	double result = (exp(r*(t/n)) - D) / (P - D);
+	double result = (exp(r * (t / n)) - D) / (P - D);
+	
 	return result;
 }
 
@@ -30,13 +45,17 @@ double Jump(double v, double t, double n, bool choice)
 	if(choice == true)
 	{
 		result = exp(v*-sqrt(t/n));
-	} else {
+	} 
+	else 
+	{
 		result = exp(v*sqrt(t/n));
 	}
+
 	return result;
 }
 
-void Spread(double * &temp, double S, double K, double P, double D, int n, int a, int b, std::string opType)
+void Spread(double * &temp, double S, double K, double P, double D, int n, 
+	int a, int b, std::string opType)
 {
 	//mtx.lock();
 	int ii;	
@@ -50,7 +69,9 @@ void Spread(double * &temp, double S, double K, double P, double D, int n, int a
 		if(opType == "Call")
 		{
 			temp[i] = min(Q - K, 0);
-		} else {
+		} 
+		else 
+		{
 			temp[i] = min(K - Q, 0);
 		}
 		
@@ -58,7 +79,8 @@ void Spread(double * &temp, double S, double K, double P, double D, int n, int a
 	//mtx.unlock();
 }
 
-void Discounter(double * &first, double A, double B, double t, double n, int a, int b)
+void Discounter(double * &first, double A, double B, double t, double n, int a, 
+	int b)
 {
 	//mtx.lock();
 	for(unsigned i = a; i < b; ++i)
@@ -96,17 +118,18 @@ double BinomialPrice(std::vector<double> data, std::string opType, int threads)
 	
 	for(int i = 0; i < threads; ++i)
 	{
-		if(i == threads - 1 && b < m){
+		if(i == threads - 1 && b < m)
+		{
 			b = m;
 		}
 		
-		init_comp.emplace_back(Spread, std::ref(temp), S, K, P, D, m, a, b, opType);
+		init_comp.emplace_back(Spread, std::ref(temp), S, K, P, D, m, a, b, 
+			opType);
 		
 		a += dx;
 		b += dx;
 	}
-	
-	
+
 	for(auto& u : init_comp)
 	{
 		u.join();
@@ -122,7 +145,8 @@ double BinomialPrice(std::vector<double> data, std::string opType, int threads)
 		
 		for(int i = 0; i < threads; ++i)
 		{
-			if(i == threads - 1 && b < j){
+			if(i == threads - 1 && b < j)
+			{
 				b = j;
 			}
 						
@@ -160,7 +184,8 @@ int main()
 		int t0 = nonce();
 		double premium = BinomialPrice({S,K,r,q,t,v,n},"Call",i);
 		if(i % 2 != 0)
-            std::cout << "Nodes: " << n << "\tThreads: " << i << "\tTime: " << nonce() - t0 << "\tOption Premium: " << premium <<  std::endl;	
+            std::cout << "Nodes: " << n << "\tThreads: " << i << "\tTime: " 
+        	<< nonce() - t0 << "\tOption Premium: " << premium <<  std::endl;	
 	}
 	return 0;
 }
