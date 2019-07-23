@@ -3,6 +3,8 @@ This project applies an object oriented approach to compute the prices of Americ
 
 ## *Option Pricing using Binomial Tree Model*
 Generates a binomial option pricing tree based on the parameters one inputs in order to achieve the price of the option premium. Applicable to European as well as American options. 
+
+![demo](src/Binomial%20Tree%20Model/Pictures/Screen%20Shot%202019-07-23%20at%202.07.12%20PM.png)
   
 
 ## *Option Pricing Using Monte Carlo Simulation*
