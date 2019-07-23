@@ -54,11 +54,11 @@ Option 3: shows how the asymmetry (price and greeks) evolves as the correlation 
 
 The latter is quite long, which is why we have included the outputs below.
 
-![demo](src/Monte Carlo/MC/gifs/price.gif)
+![demo](src/Monte%20Carlo/MC/gifs/price.gif)
 
-![demo](src/"Monte Carlo"/MC/gifs/delta.gif)
+![demo](src/Monte%20Carlo/MC/gifs/delta.gif)
 
-![demo](src/"Monte Carlo"/MC/gifs/gamma.gif)
+![demo](src/Monte%20Carlo/MC/gifs/gamma.gif)
 
-![demo](src/"Monte Carlo"/MC/gifs/vega.gif)
+![demo](src/Monte%20Carlo/MC/gifs/vega.gif)
 
