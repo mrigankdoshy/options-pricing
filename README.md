@@ -54,7 +54,7 @@ Option 3: shows how the asymmetry (price and greeks) evolves as the correlation 
 
 The latter is quite long, which is why we have included the outputs below.
 
-![demo](src/"Monte Carlo"/MC/gifs/price.gif)
+![demo](src/Monte Carlo/MC/gifs/price.gif)
 
 ![demo](src/"Monte Carlo"/MC/gifs/delta.gif)
 
