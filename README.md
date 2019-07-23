@@ -7,9 +7,9 @@ Generates a binomial option pricing tree based on the parameters one inputs in o
 
 ## *Option Pricing Using Monte Carlo Simulation*
 
-##### The project "MC" has been taken from https://github.com/RedwanBouizi/MC.git and is used for understanding purposes. I do not claim copyright over this material.
+#### The project "MC" has been taken from https://github.com/RedwanBouizi/MC.git and is used for understanding purposes. I do not claim copyright over this material.
 
-#### Description ####
+### Description ###
 In this project we have implemented some Monte-Carlo simulations around the Black-Scholes and Heston models.
 Given some parameters of an european call option, this code computes for {100, 10000, 100000} simulations the following quantities:
 - price
@@ -28,13 +28,13 @@ All of them show great improvements in the estimator accuracy.
 We have also plotted the price and greeks on a same scale against the spot, maturity and volatility (only for the Black-Scholes model in the latter).
 
 
-#### Requirements ####
+### Requirements ###
 - gnuplot > 5.2 (tested with qt terminal) http://www.gnuplot.info/download.html
 - gnuplot-iostream interface http://stahlke.org/dan/gnuplot-iostream/
 - boost > 1.63.0 http://www.boost.org/users/download/
 - cmake > 3.8 https://cmake.org/download/
 
-#### Build and run ####
+### Build and run ###
 1. clone the git repository: `git clone https://github.com/RedwanBouizi/MC.git`
 2. go to MC directory: `cd MC`
 3. create a build directory: `mkdir build`
