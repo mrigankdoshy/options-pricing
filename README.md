@@ -1,11 +1,11 @@
 # Option Pricing
 This project applies an object oriented approach to compute the prices of American and European Call and Put options using different pricing methods such as Monte Carlo, the analytical Black-Scholes formula and the Binomial tree method.
 
-### *Option Pricing using Binomial Tree Model*
+## *Option Pricing using Binomial Tree Model*
 Generates a binomial option pricing tree based on the parameters one inputs in order to achieve the price of the option premium. Applicable to European as well as American options. 
   
 
-### *Option Pricing Using Monte Carlo Simulation*
+## *Option Pricing Using Monte Carlo Simulation*
 
 ##### The project "MC" has been taken from https://github.com/RedwanBouizi/MC.git and is used for understanding purposes. I do not claim copyright over this material.
 
